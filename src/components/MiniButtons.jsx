@@ -16,7 +16,10 @@ const MiniButtons = () => {
   return (
     <div className="flex justify-between">
       {miniButton.map((miniButton, index) => (
-        <div key={index} className="mx-4 border rounded-lg px-4 shadow-md">
+        <div
+          key={index}
+          className="mx-4 border rounded-lg px-4 shadow-md hover:shadow-2xl hover:bg-gray-200"
+        >
           {miniButton}
         </div>
       ))}

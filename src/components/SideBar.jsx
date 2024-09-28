@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 
 const SideBar = () => {
   const isMenuOpen = useSelector((store) => store.sideSlice.isMenuOpen);
-  console.log(isMenuOpen);
+
   const sideBar = [
     ["Home", "Shorts", "Subscriptions", "Music"],
     ["History", "Playlists", "Youtube", "Watch later"],
@@ -30,7 +30,7 @@ const SideBar = () => {
           {sideElem.map((sideElemPart, subIndex) => (
             <li
               key={subIndex}
-              className="hover:bg-gray-500 hover:rounded-lg cursor-pointer text-left text-lg px-2 my-2"
+              className=" hover:rounded-lg cursor-pointer text-left text-lg px-2 my-4 hover:shadow-2xl hover:bg-gray-200"
             >
               {sideElemPart}
             </li>

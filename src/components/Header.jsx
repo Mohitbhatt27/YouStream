@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { toggleMenu } from "../redux/SideBarSlice";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -14,11 +15,13 @@ const Header = () => {
         alt="hamburger"
         onClick={handleHamburgerOnClick}
       />
-      <img
-        className="w-36"
-        src="https://logos-world.net/wp-content/uploads/2020/06/YouTube-Logo.png"
-        alt="YT icon"
-      />
+      <Link to="/">
+        <img
+          className="w-36"
+          src="https://logos-world.net/wp-content/uploads/2020/06/YouTube-Logo.png"
+          alt="YT icon"
+        />
+      </Link>
     </div>
   );
 };

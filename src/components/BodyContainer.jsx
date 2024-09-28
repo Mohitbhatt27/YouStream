@@ -9,7 +9,7 @@ const BodyContainer = () => {
         <SideBar />
       </div>
       <div>
-        <div className="flex p-4 m-4 h-16 justify-center">
+        <div className="flex p-4 m-4 h-16 justify-center cursor-pointer ">
           <MiniButtons />
         </div>
         <div className="flex p-4 my-4">
