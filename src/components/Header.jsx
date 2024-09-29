@@ -2,12 +2,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleMenu } from "../redux/SideBarSlice";
 import { Link } from "react-router-dom";
 import { searchTextChange } from "../redux/SearchBarSlice";
+import { useEffect } from "react";
+import axios from "axios";
+import { YOUTUBE_SEARCH_VIDEOS } from "../utils/constants";
+import { useDebounce } from "../hooks/useDebounce";
 
 const Header = () => {
   const dispatch = useDispatch();
   const searchBarText = useSelector((store) => store.searchSlice.searchText);
-  console.log("searchText", searchBarText);
-  // console.log("fn", setSearchBarText);
+  const debouncedSearchText = useDebounce(searchBarText, 1000);
+
+  useEffect(() => {
+    if (debouncedSearchText) {
+      fetchSuggestions(debouncedSearchText);
+    }
+  }, [debouncedSearchText]);
+
+  const fetchSuggestions = async (searchBarText) => {
+    const response = await axios.get(
+      YOUTUBE_SEARCH_VIDEOS + `&&q=${searchBarText}`
+    );
+    console.log(response.data.items);
+  };
+
   const handleHamburgerOnClick = () => {
     dispatch(toggleMenu());
   };

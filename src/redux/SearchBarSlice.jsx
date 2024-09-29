@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const searchBarSlice = createSlice({
   name: "searchBar",
   initialState: {
-    searchText: "Mohit",
+    searchText: "",
   },
   reducers: {
     searchTextChange: (state, action) => {
