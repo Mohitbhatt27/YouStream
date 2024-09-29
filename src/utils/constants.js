@@ -3,5 +3,5 @@ export const YOUTUBE_GET_POPULAR_VIDEOS =
   import.meta.env.VITE_YOUTUBE_API_KEY;
 
 export const YOUTUBE_SEARCH_VIDEOS =
-  "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=14&&key=" +
+  "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=14&type=video&key=" +
   import.meta.env.VITE_YOUTUBE_API_KEY;
