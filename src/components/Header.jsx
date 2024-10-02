@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMenu } from "../redux/SideBarSlice";
 import { Link, useNavigate } from "react-router-dom";
-import { searchTextChange } from "../redux/SearchBarSlice";
-import { useEffect, useState } from "react";
+import { searchTextChange, setcache } from "../redux/SearchBarSlice";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { YOUTUBE_SEARCH_VIDEOS } from "../utils/constants";
+import { getCurrentAPIKey, switchAPIkey } from "../utils/constants";
 import { useDebounce } from "../hooks/useDebounce";
 
 const Header = () => {
@@ -13,22 +14,43 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const searchBarText = useSelector((store) => store.searchSlice.searchText);
+  const cache = useSelector((store) => store.searchSlice.cache);
   const debouncedSearchText = useDebounce(searchBarText, 250);
+
+  const fetchSuggestions = useCallback(
+    async (searchBarText) => {
+      try {
+        if (cache[searchBarText]) {
+          setIsSearchItemsVisible(true);
+          setSearchData(cache[searchBarText]);
+        } else {
+          const response = await axios.get(
+            `${YOUTUBE_SEARCH_VIDEOS}${getCurrentAPIKey()}&q=${searchBarText}`
+          );
+          const data = response?.data?.items;
+          console.log(data);
+          setSearchData(data);
+          dispatch(setcache({ searchBarText, data }));
+          setIsSearchItemsVisible(true);
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 403) {
+          console.log("Quota exceeded. Switching API key...");
+          switchAPIkey();
+          return fetchSuggestions(searchBarText);
+        } else {
+          console.error("Something went wrong", error);
+        }
+      }
+    },
+    [cache, dispatch]
+  );
 
   useEffect(() => {
     if (debouncedSearchText) {
       fetchSuggestions(debouncedSearchText);
     }
-  }, [debouncedSearchText]);
-
-  const fetchSuggestions = async (searchBarText) => {
-    const response = await axios.get(
-      YOUTUBE_SEARCH_VIDEOS + `&&q=${searchBarText}`
-    );
-    console.log(response.data.items);
-    setSearchData(response?.data?.items);
-    setIsSearchItemsVisible(true);
-  };
+  }, [debouncedSearchText, fetchSuggestions]);
 
   const handleHamburgerOnClick = () => {
     dispatch(toggleMenu());
@@ -37,8 +59,6 @@ const Header = () => {
     dispatch(searchTextChange(e.target.value));
   };
   const handleOnSearchItemClick = (videoId) => {
-    console.log(videoId);
-
     navigate(`/watch?v=${videoId}`);
     dispatch(searchTextChange(""));
   };
@@ -65,7 +85,7 @@ const Header = () => {
             value={searchBarText}
             placeholder="Search"
             onChange={handleSearchOnChange}
-            onBlur={() => setIsSearchItemsVisible(false)}
+            onBlur={() => setTimeout(() => setIsSearchItemsVisible(false), 200)}
             onFocus={() => setIsSearchItemsVisible(true)}
           />
 
