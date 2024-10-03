@@ -14,13 +14,13 @@ const VideoContainer = () => {
 
   const fetchVideos = useCallback(async () => {
     try {
+      console.log("videos on homepage loaded");
       const response = await axios.get(
         `${YOUTUBE_GET_POPULAR_VIDEOS}${getCurrentAPIKey()}`
       );
       setPopularVideos(response.data.items);
     } catch (error) {
       if (error.response && error.response.status === 403) {
-        console.log("Quota exceeded. Switching API key...");
         switchAPIkey();
         return fetchVideos();
       }

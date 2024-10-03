@@ -28,7 +28,7 @@ const Header = () => {
             `${YOUTUBE_SEARCH_VIDEOS}${getCurrentAPIKey()}&q=${searchBarText}`
           );
           const data = response?.data?.items;
-          console.log(data);
+          console.log(searchBarText, data);
           setSearchData(data);
           dispatch(setcache({ searchBarText, data }));
           setIsSearchItemsVisible(true);
@@ -58,8 +58,10 @@ const Header = () => {
   const handleSearchOnChange = (e) => {
     dispatch(searchTextChange(e.target.value));
   };
-  const handleOnSearchItemClick = (videoId) => {
-    navigate(`/watch?v=${videoId}`);
+  const handleOnSearchItemClick = (title) => {
+    navigate(`/results?search_query=${title.split(" ").join("+")}`, {
+      state: { title },
+    });
     dispatch(searchTextChange(""));
   };
   return (
@@ -96,10 +98,14 @@ const Header = () => {
                   return (
                     <li
                       onClick={() =>
-                        handleOnSearchItemClick(search?.id?.videoId)
+                        handleOnSearchItemClick(search?.snippet?.title)
                       }
                       className="hover:bg-gray-200 cursor-pointer hover:border hover:rounded-lg p-1 m-1 ml-2 shadow-sm"
-                      key={search?.id?.videoId}
+                      key={
+                        search?.id?.videoId
+                          ? search?.id?.videoId
+                          : search?.id?.channelId
+                      }
                     >
                       {search?.snippet?.title}
                     </li>
