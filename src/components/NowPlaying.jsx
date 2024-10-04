@@ -1,12 +1,55 @@
-import { useSearchParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import SideBar from "./SideBar";
 import like from "../assets/like.svg";
 import dislike from "../assets/dislike.svg";
 import share from "../assets/share.svg";
+import { formatViews } from "../utils/viewsConversion";
+import axios from "axios";
+import {
+  FETCH_CHANNEL_BY_ID,
+  getCurrentAPIKey,
+  switchAPIkey,
+} from "../utils/constants";
+import { useCallback, useEffect, useState } from "react";
 
 const NowPlaying = () => {
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("v");
+  const location = useLocation();
+  const { videoDetails } = location.state || {};
+
+  const [channelDetail, setChannelDetail] = useState({
+    subscribers: "",
+    channelImg: "",
+  });
+
+  const channelDetails = useCallback(async () => {
+    try {
+      const channel = await axios.get(
+        `${FETCH_CHANNEL_BY_ID}${getCurrentAPIKey()}&id=${
+          videoDetails?.snippet.channelId
+        }`
+      );
+      const subscribers = channel?.data?.items[0]?.statistics?.subscriberCount;
+      const channelImg =
+        channel?.data?.items[0]?.snippet?.thumbnails?.default?.url;
+      setChannelDetail({
+        subscribers: subscribers,
+        channelImg: channelImg,
+      });
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        console.log("Quota exceeded. Switching API key...");
+        switchAPIkey();
+        channelDetails();
+      }
+    }
+  }, [videoDetails?.snippet.channelId]);
+
+  useEffect(() => {
+    channelDetails();
+  }, [channelDetails]);
+
+  const id = videoDetails?.id;
+
   const url = `https://www.youtube.com/embed/${id}?si=ZqzBBVe7mARofJz_&autoPlay=1`;
   return (
     <div className="flex ">
@@ -25,18 +68,25 @@ const NowPlaying = () => {
             className="rounded-lg"
           ></iframe>
         </div>
-        <div className="px-2 mt-2 font-medium text-[25px] font-sans text-[#0f0f0f] ">
-          Title of the video
+        <div className="px-2 mt-2 font-medium text-[25px] font-sans text-[#0f0f0f]  two-line-ellipsis max-w-[63rem] ">
+          {videoDetails?.snippet?.title}
         </div>
         <div className="px-2 mt-2 font-medium text-[25px] font-sans text-[#0f0f0f] flex">
           <img
             className="w-16 cursor-pointer"
-            src="https://static-00.iconduck.com/assets.00/channel-icon-2048x1965-0828nacf.png"
+            src={channelDetail.channelImg ? channelDetail.channelImg : ""}
             alt="channel-icon"
           />
           <div className="flex flex-col ml-4 mr-16 items-start justify-center">
-            <p className="text-xl font-medium cursor-pointer">channel name</p>
-            <p className="text-sm font-medium">1.62M subscribers</p>
+            <p className="text-xl font-medium cursor-pointer">
+              {videoDetails?.snippet?.channelTitle}
+            </p>
+            <p className="text-sm font-medium">
+              {channelDetail.subscribers
+                ? formatViews(channelDetail.subscribers)
+                : ""}{" "}
+              subscribers
+            </p>
           </div>
 
           <div className=" flex w-[43rem] justify-between">
@@ -52,7 +102,9 @@ const NowPlaying = () => {
                 >
                   <img className="" src={like} alt="like-button" />
                 </button>
-                <div className="text-xl">22K</div>
+                <div className="text-xl">
+                  {formatViews(videoDetails?.statistics?.likeCount)}
+                </div>
               </div>
               <button
                 onClick={() => console.log("disliked")}

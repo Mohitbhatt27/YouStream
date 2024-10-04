@@ -16,3 +16,6 @@ export const YOUTUBE_GET_POPULAR_VIDEOS =
 
 export const YOUTUBE_SEARCH_VIDEOS =
   "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=14&key=";
+
+export const FETCH_CHANNEL_BY_ID =
+  "https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&key=";
